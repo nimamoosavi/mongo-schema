@@ -1,17 +1,11 @@
 package com.nicico.mongoschema.index;
 
+import com.mongodb.client.model.Collation;
+import com.mongodb.client.model.IndexOptions;
 import lombok.*;
-import org.bson.Document;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.index.IndexDefinition;
-import org.springframework.data.mongodb.core.index.IndexFilter;
-import org.springframework.data.mongodb.core.query.Collation;
-import org.springframework.lang.Nullable;
-import org.springframework.util.StringUtils;
+import org.bson.conversions.Bson;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 /**
  * simple and custom implement of IndexDefinition
@@ -23,91 +17,59 @@ import java.util.Optional;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Index implements IndexDefinition {
-    private final Map<String, Sort.Direction> fieldSpec = new LinkedHashMap<>();
-    @Nullable
-    private String name;
-    private boolean unique;
-    private boolean sparse;
-    private boolean background;
-    private long expire;
-    private Optional<IndexFilter> filter;
-    private Optional<Collation> collation;
+public class Index extends IndexOptions {
     private String key;
-    private Sort.Direction direction;
-
-    @Override
-    public Document getIndexKeys() {
-        Document document = new Document();
-        fieldSpec.put(key, direction);
-        for (Map.Entry<String, Sort.Direction> entry : fieldSpec.entrySet()) {
-            document.put(entry.getKey(), Sort.Direction.ASC.equals(entry.getValue()) ? 1 : -1);
-        }
-        return document;
+    private Integer direction=1;
+    public void ascending(){
+        this.direction=1;
     }
-
-    @Override
-    public Document getIndexOptions() {
-        Document document = new Document();
-        if (StringUtils.hasText(name)) {
-            document.put("name", name);
-        }
-        if (unique) {
-            document.put("unique", this.unique);
-        }
-        if (sparse) {
-            document.put("sparse", this.sparse);
-        }
-        if (background) {
-            document.put("background", this.background);
-        }
-        if (expire >= 0) {
-            document.put("expireAfterSeconds", this.expire);
-        }
-        filter.ifPresent(val -> document.put("partialFilterExpression", val.getFilterObject()));
-        collation.ifPresent(val -> document.append("collation", val.toDocument()));
-        return document;
+    public void descending(){
+        this.direction=-1;
     }
-
-    public static IndexBuilder builder() {
+    public static IndexBuilder builder(){
         return new IndexBuilder();
     }
 
-    public static class IndexBuilder {
+    public static final class IndexBuilder {
         private String key;
-        private Sort.Direction direction;
-        private @Nullable
-        String name;
-        private boolean unique = false;
-        private boolean sparse = false;
-        private boolean background = false;
-        private long expire = -1;
-        private IndexFilter filter;
+        private boolean background;
+        private boolean unique;
+        private String name;
+        private boolean sparse;
+        private Long expireAfterSeconds;
+        private Integer version;
+        private Bson weights;
+        private String defaultLanguage;
+        private String languageOverride;
+        private Integer textVersion;
+        private Integer sphereVersion;
+        private Integer bits;
+        private Double min;
+        private Double max;
+        private Double bucketSize;
+        private Bson storageEngine;
+        private Bson partialFilterExpression;
         private Collation collation;
+        private Bson wildcardProjection;
+        private Integer direction=1;
+        public IndexBuilder ascending(){
+            this.direction=1;
+            return this;
+        }
+        public IndexBuilder descending(){
+            this.direction=-1;
+            return this;
+        }
 
+        private IndexBuilder() {
+        }
+
+        public static IndexBuilder anIndex() {
+            return new IndexBuilder();
+        }
 
         public IndexBuilder key(String key) {
             this.key = key;
-            return this;
-        }
-
-        public IndexBuilder direction(Sort.Direction direction) {
-            this.direction = direction;
-            return this;
-        }
-
-        public IndexBuilder name(String name) {
-            this.name = name;
-            return this;
-        }
-
-        public IndexBuilder unique(boolean unique) {
-            this.unique = unique;
-            return this;
-        }
-
-        public IndexBuilder sparse(boolean sparse) {
-            this.sparse = sparse;
             return this;
         }
 
@@ -116,13 +78,83 @@ public class Index implements IndexDefinition {
             return this;
         }
 
-        public IndexBuilder expire(Long expire) {
-            this.expire = expire;
+        public IndexBuilder unique(boolean unique) {
+            this.unique = unique;
             return this;
         }
 
-        public IndexBuilder filter(IndexFilter filter) {
-            this.filter = filter;
+        public IndexBuilder name(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public IndexBuilder sparse(boolean sparse) {
+            this.sparse = sparse;
+            return this;
+        }
+
+        public IndexBuilder expireAfterSeconds(Long expireAfterSeconds) {
+            this.expireAfterSeconds = expireAfterSeconds;
+            return this;
+        }
+
+        public IndexBuilder version(Integer version) {
+            this.version = version;
+            return this;
+        }
+
+        public IndexBuilder weights(Bson weights) {
+            this.weights = weights;
+            return this;
+        }
+
+        public IndexBuilder defaultLanguage(String defaultLanguage) {
+            this.defaultLanguage = defaultLanguage;
+            return this;
+        }
+
+        public IndexBuilder languageOverride(String languageOverride) {
+            this.languageOverride = languageOverride;
+            return this;
+        }
+
+        public IndexBuilder textVersion(Integer textVersion) {
+            this.textVersion = textVersion;
+            return this;
+        }
+
+        public IndexBuilder sphereVersion(Integer sphereVersion) {
+            this.sphereVersion = sphereVersion;
+            return this;
+        }
+
+        public IndexBuilder bits(Integer bits) {
+            this.bits = bits;
+            return this;
+        }
+
+        public IndexBuilder min(Double min) {
+            this.min = min;
+            return this;
+        }
+
+        public IndexBuilder max(Double max) {
+            this.max = max;
+            return this;
+        }
+
+        public IndexBuilder bucketSize(Double bucketSize) {
+            this.bucketSize = bucketSize;
+            return this;
+        }
+
+        public IndexBuilder storageEngine(Bson storageEngine) {
+            this.storageEngine = storageEngine;
+            return this;
+        }
+
+        public IndexBuilder partialFilterExpression(Bson partialFilterExpression) {
+            this.partialFilterExpression = partialFilterExpression;
             return this;
         }
 
@@ -131,9 +163,35 @@ public class Index implements IndexDefinition {
             return this;
         }
 
+        public IndexBuilder wildcardProjection(Bson wildcardProjection) {
+            this.wildcardProjection = wildcardProjection;
+            return this;
+        }
+
         public Index build() {
-            return new Index(name, unique, sparse, background, expire, Optional.ofNullable(filter), Optional.ofNullable(collation), key, direction);
+            Index index = new Index();
+            index.setKey(this.key);
+            index.expireAfter(this.expireAfterSeconds, TimeUnit.SECONDS);
+            index.textVersion(this.textVersion);
+            index.languageOverride(this.languageOverride);
+            index.collation(this.collation);
+            index.weights(this.weights);
+            index.wildcardProjection(this.wildcardProjection);
+            index.min(this.min);
+            index.sparse(this.sparse);
+            index.name(this.name);
+            index.partialFilterExpression(this.partialFilterExpression);
+            index.defaultLanguage(this.defaultLanguage);
+            index.version(this.version);
+            index.bucketSize(this.bucketSize);
+            index.bits(this.bits);
+            index.unique(this.unique);
+            index.sphereVersion(this.sphereVersion);
+            index.storageEngine(this.storageEngine);
+            index.background(this.background);
+            index.max(this.max);
+            index.setDirection(this.direction);
+            return index;
         }
     }
-
 }

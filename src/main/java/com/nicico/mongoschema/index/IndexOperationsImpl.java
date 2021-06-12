@@ -1,87 +1,90 @@
 package com.nicico.mongoschema.index;
 
-import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.index.IndexInfo;
-import org.springframework.stereotype.Component;
+import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Collation;
+import lombok.AllArgsConstructor;
+import org.bson.Document;
+import org.bson.conversions.Bson;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 /**
  * @author Hossein Mahdevar
  * @version 1.0.0
  */
-@Component
+
+@AllArgsConstructor
 public class IndexOperationsImpl implements IndexOperations {
+    private MongoDatabase mongoDatabase;
 
-    MongoTemplate mongoTemplate;
 
-    public IndexOperationsImpl(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
+
+    @Override
+    public String createIndex(String collectionName, Index index) {
+        return mongoDatabase.getCollection(collectionName).createIndex(new Document(index.getKey(), index.getDirection()), index);
     }
 
     @Override
-    public String createIndex(Class<?> collectionClass, String fieldName) {
-        return mongoTemplate.indexOps(collectionClass).ensureIndex(
-                Index.builder()
-                        .key(fieldName)
-                        .name(collectionClass + "_" + fieldName)
-                        .direction(Sort.Direction.ASC)
-                        .unique(true)
-                        .sparse(false)
-                        .build()
-        );
+    public String createIndex(String collectionName, String fieldName) {
+        return this.createIndex(collectionName,Index.builder()
+                .ascending()
+                .key(fieldName)
+                .name(collectionName.concat("_").concat(fieldName))
+                .unique(true)
+                .sparse(false)
+                .build());
     }
 
     @Override
-    public String createIndex(Class<?> collectionClass, Index index) {
-        return mongoTemplate.indexOps(collectionClass).ensureIndex(index);
+    public List<Index> getIndexes(String collectionName) {
+        return StreamSupport.stream(mongoDatabase.getCollection(collectionName).listIndexes().spliterator(),false).map(this::covertFromDocument).collect(Collectors.toList());
     }
 
     @Override
-    public List<Index> getIndexes(Class<?> collectionClass) {
-        return getListIndexInfo(collectionClass).stream().map(this::indexInfoToIndex).collect(Collectors.toList());
+    public Optional<Index> getIndex(String collectionName, String indexName) {
+        return this.getIndexes(collectionName).stream().filter(index -> index.getName().equals(indexName)).findFirst();
     }
 
     @Override
-    public Optional<Index> getIndex(Class<?> collectionClass, String indexName) {
-        return getListIndexInfo(collectionClass).stream().filter(idx -> indexName.equals(idx.getName())).map(this::indexInfoToIndex).findFirst();
+    public void dropIndex(String collectionName, String indexName) {
+        mongoDatabase.getCollection(collectionName).dropIndex(indexName);
     }
 
     @Override
-    public void dropIndex(Class<?> collectionClass, String indexName) {
-        mongoTemplate.indexOps(collectionClass).dropIndex(indexName);
+    public void dropIndexes(String collectionName) {
+        mongoDatabase.getCollection(collectionName).dropIndexes();
+
     }
+    public Index covertFromDocument(Document document){
+        Index.IndexBuilder builder= Index.builder();
+        if (document.containsKey("key"))
+            builder.key(document.get("key",Document.class).keySet().toArray()[0].toString());
+        if (document.containsKey("expireAfter"))
+            builder.expireAfterSeconds(document.get("expireAfter",Long.class));
+        if (document.containsKey("textVersion"))
+            builder.textVersion(document.get("textVersion",Integer.class));
+        if (document.containsKey("languageOverride"))
+            builder.languageOverride(document.get("languageOverride",String.class));
+        if (document.containsKey("collation"))
+            builder.collation(document.get("collation", Collation.class));
+        if (document.containsKey("weights"))
+            builder.weights(document.get("weights", Bson.class));
+        if (document.containsKey("wildcardProjection"))
+            builder.wildcardProjection(document.get("wildcardProjection",Bson.class));
+        if (document.containsKey("min"))
+            builder.min(document.get("min",Double.class));
+        if (document.containsKey("sparse"))
+            builder.sparse(document.get("sparse",Boolean.class));
+        if (document.containsKey("name"))
+            builder.name(document.get("name",String.class));
+        if (document.containsKey("partialFilterExpression"))
+            builder.partialFilterExpression(document.get("partialFilterExpression",Bson.class));
+        if (document.containsKey("defaultLanguage"))
+            builder.defaultLanguage(document.get("defaultLanguage",String.class));
+        return builder.build();
 
-    @Override
-    public void dropIndexes(Class<?> collectionClass) {
-        mongoTemplate.indexOps(collectionClass).dropAllIndexes();
     }
-
-    private List<IndexInfo> getListIndexInfo(Class<?> collectionClass) {
-        return mongoTemplate.indexOps(collectionClass).getIndexInfo();
-    }
-
-    /**
-     * map indexInfo object to index object
-     * @param idx Index Info object
-     * @return index object
-     */
-
-    private Index indexInfoToIndex(IndexInfo idx) {
-        return Index.builder()
-                .name(idx.getName())
-                .key(idx.getIndexFields().isEmpty() ? null : idx.getIndexFields().get(0).getKey())
-                .direction(idx.getIndexFields().isEmpty() ? null : idx.getIndexFields().get(0).getDirection())
-                .sparse(idx.isSparse())
-                .unique(idx.isUnique())
-                .direction(idx.getIndexFields().isEmpty() ? null : idx.getIndexFields().get(0).getDirection())
-                .expire(idx.getExpireAfter().orElse(Duration.ofMillis(-1)).toMillis())
-                .build();
-    }
-
-
 }

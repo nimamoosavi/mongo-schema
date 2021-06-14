@@ -99,6 +99,11 @@ public class MongoSchemaOperationsImpl implements MongoSchemaOperations {
         }
         return mongoDbSchemaService.saveSchema(collectionName, fieldValidation);
     }
+    /**
+     * cast FieldPropertyDTO to FieldValidation
+     * @param schemaField destination object
+     * @param dto source object
+     */
 
     private void castDtoToValidation(FieldValidation schemaField, FieldPropertyDTO dto) {
         schemaField.setMinimum(dto.getMinimum() == null ? null : dto.getMinimum().doubleValue());
@@ -108,6 +113,12 @@ public class MongoSchemaOperationsImpl implements MongoSchemaOperations {
         schemaField.setDescription(dto.getDescription());
         schemaField.setType(Collections.singleton(dto.getType()));
     }
+    /**
+     * get nested schema of field from parent schema
+     * @param schema parent schema
+     * @param nestedFieldName nested field name
+     * @return schema of field name
+     */
 
     private FieldValidation getTargetSchema(FieldValidation schema, String[] nestedFieldName) {
         if (nestedFieldName != null)

@@ -4,6 +4,10 @@ import com.nicico.mongoschema.schema.Type;
 import lombok.*;
 
 import java.util.Set;
+/**
+ * this dto make easier generating Validation on collection or field of collection
+ * @author Hossein Mahdevar
+ */
 
 @Data
 @Getter

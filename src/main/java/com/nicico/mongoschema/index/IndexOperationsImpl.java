@@ -20,8 +20,6 @@ import java.util.stream.StreamSupport;
 public class IndexOperationsImpl implements IndexOperations {
     private MongoDatabase mongoDatabase;
 
-
-
     @Override
     public String createIndex(String collectionName, Index index) {
         return mongoDatabase.getCollection(collectionName).createIndex(new Document(index.getKey(), index.getDirection()), index);
@@ -29,7 +27,7 @@ public class IndexOperationsImpl implements IndexOperations {
 
     @Override
     public String createIndex(String collectionName, String fieldName) {
-        return this.createIndex(collectionName,Index.builder()
+        return this.createIndex(collectionName, Index.builder()
                 .ascending()
                 .key(fieldName)
                 .name(collectionName.concat("_").concat(fieldName))
@@ -40,7 +38,7 @@ public class IndexOperationsImpl implements IndexOperations {
 
     @Override
     public List<Index> getIndexes(String collectionName) {
-        return StreamSupport.stream(mongoDatabase.getCollection(collectionName).listIndexes().spliterator(),false).map(this::covertFromDocument).collect(Collectors.toList());
+        return StreamSupport.stream(mongoDatabase.getCollection(collectionName).listIndexes().spliterator(), false).map(this::covertFromDocument).collect(Collectors.toList());
     }
 
     @Override
@@ -58,32 +56,33 @@ public class IndexOperationsImpl implements IndexOperations {
         mongoDatabase.getCollection(collectionName).dropIndexes();
 
     }
-    public Index covertFromDocument(Document document){
-        Index.IndexBuilder builder= Index.builder();
+
+    public Index covertFromDocument(Document document) {
+        Index.IndexBuilder builder = Index.builder();
         if (document.containsKey("key"))
-            builder.key(document.get("key",Document.class).keySet().toArray()[0].toString());
+            builder.key(document.get("key", Document.class).keySet().toArray()[0].toString());
         if (document.containsKey("expireAfter"))
-            builder.expireAfterSeconds(document.get("expireAfter",Long.class));
+            builder.expireAfterSeconds(document.get("expireAfter", Long.class));
         if (document.containsKey("textVersion"))
-            builder.textVersion(document.get("textVersion",Integer.class));
+            builder.textVersion(document.get("textVersion", Integer.class));
         if (document.containsKey("languageOverride"))
-            builder.languageOverride(document.get("languageOverride",String.class));
+            builder.languageOverride(document.get("languageOverride", String.class));
         if (document.containsKey("collation"))
             builder.collation(document.get("collation", Collation.class));
         if (document.containsKey("weights"))
             builder.weights(document.get("weights", Bson.class));
         if (document.containsKey("wildcardProjection"))
-            builder.wildcardProjection(document.get("wildcardProjection",Bson.class));
+            builder.wildcardProjection(document.get("wildcardProjection", Bson.class));
         if (document.containsKey("min"))
-            builder.min(document.get("min",Double.class));
+            builder.min(document.get("min", Double.class));
         if (document.containsKey("sparse"))
-            builder.sparse(document.get("sparse",Boolean.class));
+            builder.sparse(document.get("sparse", Boolean.class));
         if (document.containsKey("name"))
-            builder.name(document.get("name",String.class));
+            builder.name(document.get("name", String.class));
         if (document.containsKey("partialFilterExpression"))
-            builder.partialFilterExpression(document.get("partialFilterExpression",Bson.class));
+            builder.partialFilterExpression(document.get("partialFilterExpression", Bson.class));
         if (document.containsKey("defaultLanguage"))
-            builder.defaultLanguage(document.get("defaultLanguage",String.class));
+            builder.defaultLanguage(document.get("defaultLanguage", String.class));
         return builder.build();
 
     }

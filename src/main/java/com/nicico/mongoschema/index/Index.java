@@ -8,7 +8,7 @@ import org.bson.conversions.Bson;
 import java.util.concurrent.TimeUnit;
 
 /**
- * simple and custom implement of IndexDefinition
+ * simple and custom implement of IndexOptions
  * @author Hossein Mahdevar
  * @version 1.0.0
  */

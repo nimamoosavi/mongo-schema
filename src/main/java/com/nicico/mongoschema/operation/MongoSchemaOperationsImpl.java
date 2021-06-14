@@ -1,12 +1,17 @@
 package com.nicico.mongoschema.operation;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoDatabase;
+import com.nicico.cost.framework.service.exception.ApplicationException;
+import com.nicico.cost.framework.service.exception.ServiceException;
+import com.nicico.mongoschema.enums.MongoSchemaException;
 import com.nicico.mongoschema.schema.FieldValidation;
 import com.nicico.mongoschema.schema.MongoDbSchemaService;
 import com.nicico.mongoschema.schema.MongoDbSchemaServiceImpl;
-import lombok.SneakyThrows;
 import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
 import java.util.*;
 
@@ -18,12 +23,12 @@ public class MongoSchemaOperationsImpl implements MongoSchemaOperations {
 
 
     private MongoDbSchemaService mongoDbSchemaService;
+    @Autowired
     private ObjectMapper objectMapper;
-
+    @Autowired
+    ApplicationException<ServiceException> applicationException;
 
     public MongoSchemaOperationsImpl(MongoDatabase database) {
-        this.objectMapper = new ObjectMapper();
-        this.mongoDbSchemaService = new MongoDbSchemaServiceImpl(database) ;
         this.mongoDbSchemaService = new MongoDbSchemaServiceImpl(database);
     }
 
@@ -73,13 +78,18 @@ public class MongoSchemaOperationsImpl implements MongoSchemaOperations {
         saveSchema(collectionName, schema);
     }
 
-    @SneakyThrows
+
     @Override
     public Document saveFieldValidation(String collectionName, String fieldName, FieldValidation fieldValidation) {
         Document schema = getSchema(collectionName);
-        schema.get(MongoDbSchemaService.MONGO_PROPERTIES, Document.class).put(fieldName, Document.parse(objectMapper.writeValueAsString(fieldValidation)));
+        try {
+            schema.get(MongoDbSchemaService.MONGO_PROPERTIES, Document.class).put(fieldName, Document.parse(objectMapper.writeValueAsString(fieldValidation)));
+        } catch (JsonProcessingException e) {
+            throw applicationException.createApplicationException(MongoSchemaException.VALIDATION_SAVE, HttpStatus.BAD_REQUEST);
+        }
         return saveSchema(collectionName, schema);
     }
+
     @Override
     public Boolean saveSchema(String collectionName, Map<String, FieldPropertyDTO> schemaFieldValidation) {
         FieldValidation fieldValidation = mongoDbSchemaService.getJsonSchema(collectionName);
@@ -99,10 +109,12 @@ public class MongoSchemaOperationsImpl implements MongoSchemaOperations {
         }
         return mongoDbSchemaService.saveSchema(collectionName, fieldValidation);
     }
+
     /**
      * cast FieldPropertyDTO to FieldValidation
+     *
      * @param schemaField destination object
-     * @param dto source object
+     * @param dto         source object
      */
 
     private void castDtoToValidation(FieldValidation schemaField, FieldPropertyDTO dto) {
@@ -113,9 +125,11 @@ public class MongoSchemaOperationsImpl implements MongoSchemaOperations {
         schemaField.setDescription(dto.getDescription());
         schemaField.setType(Collections.singleton(dto.getType()));
     }
+
     /**
      * get nested schema of field from parent schema
-     * @param schema parent schema
+     *
+     * @param schema          parent schema
      * @param nestedFieldName nested field name
      * @return schema of field name
      */

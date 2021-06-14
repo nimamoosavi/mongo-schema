@@ -1,25 +1,32 @@
 package com.nicico.mongoschema.schema;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
-import lombok.SneakyThrows;
+import com.nicico.cost.framework.service.exception.ApplicationException;
+import com.nicico.cost.framework.service.exception.ServiceException;
+import com.nicico.mongoschema.enums.MongoSchemaException;
 import org.bson.Document;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author Hossein Mahdevar
  * @version 1.0.0
  */
 public class MongoDbSchemaServiceImpl implements MongoDbSchemaService {
-    private MongoDatabase database;
-
+    private final MongoDatabase database;
+    @Autowired
     private ObjectMapper objectMapper;
+    @Autowired
+    ApplicationException<ServiceException> applicationException;
 
     public MongoDbSchemaServiceImpl(MongoDatabase database) {
         this.database = database;
-        objectMapper = new ObjectMapper();
     }
 
     @Override
@@ -34,10 +41,16 @@ public class MongoDbSchemaServiceImpl implements MongoDbSchemaService {
         return database.runCommand(new Document(jsonSchema));
     }
 
-    @SneakyThrows
+
     @Override
     public Boolean saveSchema(String collectionName, FieldValidation schemaFieldValidation) {
-        Document result = saveSchema(collectionName, Document.parse(objectMapper.writeValueAsString(schemaFieldValidation)));
+
+        Document result = null;
+        try {
+            result = saveSchema(collectionName, Document.parse(objectMapper.writeValueAsString(schemaFieldValidation)));
+        } catch (JsonProcessingException e) {
+            throw applicationException.createApplicationException(MongoSchemaException.SCHEMA_CAST, HttpStatus.BAD_REQUEST);
+        }
         return result.containsKey("ok");
     }
 
@@ -46,16 +59,21 @@ public class MongoDbSchemaServiceImpl implements MongoDbSchemaService {
         this.saveSchema(collectionName, new Document());
     }
 
-    @SneakyThrows
+
     @Override
     public FieldValidation getJsonSchema(String collectionName) {
-        return objectMapper.readValue(getJsonSchemaDocument(collectionName).toJson(), FieldValidation.class);
+        try {
+            return objectMapper.readValue(getJsonSchemaDocument(collectionName).toJson(), FieldValidation.class);
+        } catch (JsonProcessingException e) {
+            throw applicationException.createApplicationException(MongoSchemaException.SCHEMA_CAST, HttpStatus.BAD_REQUEST);
+        }
     }
 
     @Override
     public Document getJsonSchemaDocument(String collectionName) {
         Document collection = retrieveValidatorDocument(collectionName);
-        assert (collection == null) : "collection not found";
+        if (collection == null)
+            throw applicationException.createApplicationException(MongoSchemaException.NOTFOUND, HttpStatus.NOT_FOUND);
         return readJsonSchema(collection);
     }
 

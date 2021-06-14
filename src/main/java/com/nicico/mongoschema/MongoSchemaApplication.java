@@ -1,3 +1,4 @@
+/*
 package com.nicico.mongoschema;
 
 import com.mongodb.client.MongoCollection;
@@ -26,9 +27,11 @@ public class MongoSchemaApplication {
 //        IndexOperations indexOperations = applicationContext.getBean(IndexOperations.class);
 //        indexOperations.dropIndex("costHeader","costHeader_name");
 
+*/
 /*		IndexOptions idx = new IndexOptions();
 		idx.unique(true);
-		idx.sparse(true);*/
+		idx.sparse(true);*//*
+
 //        Index index = Index.builder().name("sample").key("descriptions").expireAfterSeconds(1000L).unique(true).sparse(false).build();
 
 //        mongoTemplate.getDb().getCollection("costHeader").createIndex(new Document(index.getKey(), 1), index);
@@ -37,3 +40,4 @@ public class MongoSchemaApplication {
     }
 
 }
+*/

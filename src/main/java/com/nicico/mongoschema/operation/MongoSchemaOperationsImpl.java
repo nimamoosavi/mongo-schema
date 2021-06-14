@@ -8,7 +8,7 @@ import com.nicico.mongoschema.schema.MongoDbSchemaServiceImpl;
 import lombok.SneakyThrows;
 import org.bson.Document;
 
-import java.util.Set;
+import java.util.*;
 
 /**
  * @author Hossein Mahdevar
@@ -80,4 +80,45 @@ public class MongoSchemaOperationsImpl implements MongoSchemaOperations {
         schema.get(MongoDbSchemaService.MONGO_PROPERTIES, Document.class).put(fieldName, Document.parse(objectMapper.writeValueAsString(fieldValidation)));
         return saveSchema(collectionName, schema);
     }
+    @Override
+    public Boolean saveSchema(String collectionName, Map<String, FieldPropertyDTO> schemaFieldValidation) {
+        FieldValidation fieldValidation = mongoDbSchemaService.getJsonSchema(collectionName);
+        for (String fieldKey : schemaFieldValidation.keySet()) {
+            String[] fieldName = fieldKey.split(MONGO_FIELD_NAME_SEPARATOR);
+            FieldValidation schemaField = getTargetSchema(fieldValidation, fieldName);
+            FieldPropertyDTO dto = schemaFieldValidation.get(fieldKey);
+            castDtoToValidation(schemaField, dto);
+            FieldValidation parentSchemaField = getTargetSchema(fieldValidation, Arrays.copyOfRange(fieldName, 0, fieldName.length - 1));
+            if (parentSchemaField.getRequired() == null)
+                parentSchemaField.setRequired(new HashSet<>());
+            if (dto.getRequired()) {
+                parentSchemaField.getRequired().add(fieldName[fieldName.length - 1]);
+            } else {
+                parentSchemaField.getRequired().remove(fieldName[fieldName.length - 1]);
+            }
+        }
+        return mongoDbSchemaService.saveSchema(collectionName, fieldValidation);
+    }
+
+    private void castDtoToValidation(FieldValidation schemaField, FieldPropertyDTO dto) {
+        schemaField.setMinimum(dto.getMinimum() == null ? null : dto.getMinimum().doubleValue());
+        schemaField.setMaximum(dto.getMaximum() == null ? null : dto.getMaximum().doubleValue());
+        schemaField.setEnums(dto.getEnums());
+        schemaField.setPattern(dto.getPattern());
+        schemaField.setDescription(dto.getDescription());
+        schemaField.setType(Collections.singleton(dto.getType()));
+    }
+
+    private FieldValidation getTargetSchema(FieldValidation schema, String[] nestedFieldName) {
+        if (nestedFieldName != null)
+            for (String fieldName : nestedFieldName) {
+                if (schema.getProperties() == null)
+                    schema.setProperties(new HashMap<>());
+                if (!schema.getProperties().containsKey(fieldName))
+                    schema.getProperties().put(fieldName, FieldValidation.builder().properties(new HashMap<>()).build());
+                schema = schema.getProperties().get(fieldName);
+            }
+        return schema;
+    }
+
 }

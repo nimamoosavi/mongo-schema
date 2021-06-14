@@ -1,5 +1,6 @@
-package com.nicico.mongoschema.schema;
+package com.nicico.mongoschema.operation;
 
+import com.nicico.mongoschema.schema.Type;
 import lombok.*;
 
 import java.util.Set;

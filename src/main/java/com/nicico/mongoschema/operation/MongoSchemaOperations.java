@@ -10,20 +10,19 @@ import java.util.Set;
  * @version 1.0.0
  */
 public interface MongoSchemaOperations {
-    public Document saveSchema(Class<?> collectionClass, Document schema);
-
-    public String getCollectionName(Class<?> collectionClass);
-
-    public Document getSchema(Class<?> collectionClass);
+    public Document saveSchema(String collectionName, Document schema);
 
 
-    public Document getFieldValidation(Class<?> collectionClass, String fieldName);
+    public Document getSchema(String collectionName);
 
-    public Document getFieldValidation(Class<?> collectionClass);
 
-    public Document saveFieldValidation(Class<?> collectionClass, String fieldName, FieldValidation fieldValidation);
+    public Document getFieldValidation(String collectionName, String fieldName);
 
-    public Set<String> getRequiredField(Class<?> collectionClass, String nestedFieldName);
+    public Document getFieldValidation(String collectionName);
 
-    public void setRequiredField(Class<?> collectionClass, String nestedFieldName, Set<String> requiredField);
+    public Document saveFieldValidation(String collectionName, String fieldName, FieldValidation fieldValidation);
+
+    public Set<String> getRequiredField(String collectionName, String nestedFieldName);
+
+    public void setRequiredField(String collectionName, String nestedFieldName, Set<String> requiredField);
 }

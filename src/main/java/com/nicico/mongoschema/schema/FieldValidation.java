@@ -37,12 +37,10 @@ public class FieldValidation {
     /**
      * set of fields name that document most have
      */
-    @JsonProperty(value = "required")
-    private Set<String> requiredFields;
+    private Set<String> required;
     /**
      * map key represent nested field name and value of map represent schema that field most have
      */
-    @JsonProperty(value = "properties")
     private Map<String, FieldValidation> properties;
     /**
      * set of acceptable value

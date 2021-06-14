@@ -1,17 +1,10 @@
 package com.nicico.mongoschema.schema;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
-
 import lombok.SneakyThrows;
 import org.bson.Document;
-import org.bson.codecs.configuration.CodecRegistry;
-import org.bson.codecs.pojo.PojoCodecProvider;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.stereotype.Component;
-import org.springframework.util.Assert;
 
 import java.util.*;
 
@@ -19,16 +12,13 @@ import java.util.*;
  * @author Hossein Mahdevar
  * @version 1.0.0
  */
-@Component
 public class MongoDbSchemaServiceImpl implements MongoDbSchemaService {
     private MongoDatabase database;
-    private MongoTemplate mongoTemplate;
+
     private ObjectMapper objectMapper;
 
-    MongoDbSchemaServiceImpl(MongoTemplate mongoTemplate) {
-        this.mongoTemplate = mongoTemplate;
-        CodecRegistry pojoCodecRegistry = org.bson.codecs.configuration.CodecRegistries.fromRegistries(MongoClientSettings.getDefaultCodecRegistry(), org.bson.codecs.configuration.CodecRegistries.fromProviders(PojoCodecProvider.builder().automatic(true).build()));
-        this.database = mongoTemplate.getDb().withCodecRegistry(pojoCodecRegistry);
+    public MongoDbSchemaServiceImpl(MongoDatabase database) {
+        this.database = database;
         objectMapper = new ObjectMapper();
     }
 
@@ -41,7 +31,7 @@ public class MongoDbSchemaServiceImpl implements MongoDbSchemaService {
             validator = new Document();
         validator.put(MONGO_SCHEMA, schema);
         jsonSchema.put(MONGO_VALIDATOR, validator);
-        return mongoTemplate.executeCommand(new Document(jsonSchema));
+        return database.runCommand(new Document(jsonSchema));
     }
 
     @SneakyThrows
@@ -65,7 +55,7 @@ public class MongoDbSchemaServiceImpl implements MongoDbSchemaService {
     @Override
     public Document getJsonSchemaDocument(String collectionName) {
         Document collection = retrieveValidatorDocument(collectionName);
-        Assert.notNull(collection, "collection not found");
+        assert (collection == null) : "collection not found";
         return readJsonSchema(collection);
     }
 
@@ -99,14 +89,13 @@ public class MongoDbSchemaServiceImpl implements MongoDbSchemaService {
             FieldPropertyDTO dto = schemaFieldValidation.get(fieldKey);
             castDtoToValidation(schemaField, dto);
             FieldValidation parentSchemaField = getTargetSchema(fieldValidation, Arrays.copyOfRange(fieldName, 0, fieldName.length - 1));
-            if (parentSchemaField.getRequiredFields() == null)
-                parentSchemaField.setRequiredFields(new HashSet<>());
+            if (parentSchemaField.getRequired() == null)
+                parentSchemaField.setRequired(new HashSet<>());
             if (dto.getRequired()) {
-                parentSchemaField.getRequiredFields().add(fieldName[fieldName.length-1 ]);
+                parentSchemaField.getRequired().add(fieldName[fieldName.length - 1]);
             } else {
-                parentSchemaField.getRequiredFields().remove(fieldName[fieldName.length-1 ]);
+                parentSchemaField.getRequired().remove(fieldName[fieldName.length - 1]);
             }
-
         }
         return saveSchema(collectionName, fieldValidation);
     }
@@ -129,7 +118,6 @@ public class MongoDbSchemaServiceImpl implements MongoDbSchemaService {
                     schema.getProperties().put(fieldName, FieldValidation.builder().properties(new HashMap<>()).build());
                 schema = schema.getProperties().get(fieldName);
             }
-
         return schema;
     }
 

@@ -1,13 +1,12 @@
 package com.nicico.mongoschema.operation;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.mongodb.client.MongoDatabase;
 import com.nicico.mongoschema.schema.FieldValidation;
 import com.nicico.mongoschema.schema.MongoDbSchemaService;
+import com.nicico.mongoschema.schema.MongoDbSchemaServiceImpl;
 import lombok.SneakyThrows;
 import org.bson.Document;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.lang.Nullable;
-import org.springframework.stereotype.Component;
 
 import java.util.Set;
 
@@ -15,53 +14,47 @@ import java.util.Set;
  * @author Hossein Mahdevar
  * @version 1.0.0
  */
-@Component
 public class MongoSchemaOperationsImpl implements MongoSchemaOperations {
 
-    private MongoTemplate mongoTemplate;
+
     private MongoDbSchemaService mongoDbSchemaService;
     private ObjectMapper objectMapper;
 
 
-    public MongoSchemaOperationsImpl(MongoTemplate mongoTemplate, ObjectMapper ValidatorProperty, MongoDbSchemaService mongoDbSchemaService) {
-        this.objectMapper = ValidatorProperty;
-        this.mongoTemplate = mongoTemplate;
-        this.mongoDbSchemaService = mongoDbSchemaService;
+    public MongoSchemaOperationsImpl(MongoDatabase database) {
+        this.objectMapper = new ObjectMapper();
+        this.mongoDbSchemaService = new MongoDbSchemaServiceImpl(database) ;
+        this.mongoDbSchemaService = new MongoDbSchemaServiceImpl(database);
     }
 
 
     @Override
     public Document
-    saveSchema(Class<?> collectionClass, Document schema) {
-        return mongoDbSchemaService.saveSchema(getCollectionName(collectionClass), schema);
+    saveSchema(String collectionName, Document schema) {
+        return mongoDbSchemaService.saveSchema(collectionName, schema);
     }
 
 
     @Override
-    public String getCollectionName(Class<?> collectionClass) {
-        return mongoTemplate.getCollectionName(collectionClass);
+    public Document getSchema(String collectionName) {
+        return mongoDbSchemaService.getJsonSchemaDocument(collectionName);
     }
 
     @Override
-    public Document getSchema(Class<?> collectionClass) {
-        return mongoDbSchemaService.getJsonSchemaDocument(getCollectionName(collectionClass));
-    }
-
-    @Override
-    public Document getFieldValidation(Class<?> collectionClass, String fieldName) {
-        Document schema = getSchema(collectionClass);
+    public Document getFieldValidation(String collectionName, String fieldName) {
+        Document schema = getSchema(collectionName);
         schema = nestedSchema(schema, fieldName);
         return schema.get(MongoDbSchemaService.MONGO_PROPERTIES, Document.class);
     }
 
     @Override
-    public Document getFieldValidation(Class<?> collectionClass) {
-        return getFieldValidation(collectionClass, null);
+    public Document getFieldValidation(String collectionName) {
+        return getFieldValidation(collectionName, null);
     }
 
     @Override
-    public Set<String> getRequiredField(Class<?> collectionClass, @Nullable String nestedFieldName) {
-        Document schema = getSchema(collectionClass);
+    public Set<String> getRequiredField(String collectionName, String nestedFieldName) {
+        Document schema = getSchema(collectionName);
         schema = nestedSchema(schema, nestedFieldName);
         return schema.get(MongoDbSchemaService.REQUIRED, Set.class);
     }
@@ -74,17 +67,17 @@ public class MongoSchemaOperationsImpl implements MongoSchemaOperations {
     }
 
     @Override
-    public void setRequiredField(Class<?> collectionClass, String nestedFieldName, Set<String> requiredField) {
-        Document schema = getSchema(collectionClass);
+    public void setRequiredField(String collectionName, String nestedFieldName, Set<String> requiredField) {
+        Document schema = getSchema(collectionName);
         nestedSchema(schema, nestedFieldName).put(MongoDbSchemaService.REQUIRED, requiredField);
-        saveSchema(collectionClass, schema);
+        saveSchema(collectionName, schema);
     }
 
     @SneakyThrows
     @Override
-    public Document saveFieldValidation(Class<?> collectionClass, String fieldName, FieldValidation fieldValidation) {
-        Document schema = getSchema(collectionClass);
+    public Document saveFieldValidation(String collectionName, String fieldName, FieldValidation fieldValidation) {
+        Document schema = getSchema(collectionName);
         schema.get(MongoDbSchemaService.MONGO_PROPERTIES, Document.class).put(fieldName, Document.parse(objectMapper.writeValueAsString(fieldValidation)));
-        return saveSchema(collectionClass, schema);
+        return saveSchema(collectionName, schema);
     }
 }

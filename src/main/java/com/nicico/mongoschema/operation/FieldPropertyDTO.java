@@ -20,7 +20,7 @@ public class FieldPropertyDTO {
     private Integer maximum;
     private String description;
     private String pattern;
-    private Boolean required;
+    private boolean required;
     private Set<String> enums;
 
     public static class FieldPropertyDTOBuilder {
@@ -29,7 +29,7 @@ public class FieldPropertyDTO {
         private Integer maximum;
         private String description;
         private String pattern;
-        private Boolean required;
+        private boolean required;
         private Set<String> enums;
 
         public FieldPropertyDTOBuilder type(Type type) {
@@ -57,7 +57,7 @@ public class FieldPropertyDTO {
             return this;
         }
 
-        public FieldPropertyDTOBuilder required(Boolean required) {
+        public FieldPropertyDTOBuilder required(boolean required) {
             this.required = required;
             return this;
         }

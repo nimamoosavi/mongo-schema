@@ -9,6 +9,7 @@ import com.nicico.mongoschema.enums.MongoSchemaException;
 import com.nicico.mongoschema.schema.FieldValidation;
 import com.nicico.mongoschema.schema.MongoDbSchemaService;
 import com.nicico.mongoschema.schema.MongoDbSchemaServiceImpl;
+import lombok.Synchronized;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -22,7 +23,7 @@ import java.util.*;
 public class MongoSchemaOperationsImpl implements MongoSchemaOperations {
 
 
-    private MongoDbSchemaService mongoDbSchemaService;
+    private final MongoDbSchemaService mongoDbSchemaService;
     @Autowired
     private ObjectMapper objectMapper;
     @Autowired
@@ -93,21 +94,26 @@ public class MongoSchemaOperationsImpl implements MongoSchemaOperations {
     @Override
     public Boolean saveSchema(String collectionName, Map<String, FieldPropertyDTO> schemaFieldValidation) {
         FieldValidation fieldValidation = mongoDbSchemaService.getJsonSchema(collectionName);
-        for (String fieldKey : schemaFieldValidation.keySet()) {
-            String[] fieldName = fieldKey.split(MONGO_FIELD_NAME_SEPARATOR);
+        schemaFieldValidation.keySet().forEach(fieldKey->setValue(fieldKey,fieldValidation,schemaFieldValidation));
+        return mongoDbSchemaService.saveSchema(collectionName, fieldValidation);
+    }
+
+    @Synchronized
+    public void setValue(String fieldKey,FieldValidation fieldValidation, Map<String, FieldPropertyDTO> schemaFieldValidation){
+        String[] fieldName = fieldKey.split(MONGO_FIELD_NAME_SEPARATOR);
+        if(fieldName.length > 0) {
             FieldValidation schemaField = getTargetSchema(fieldValidation, fieldName);
             FieldPropertyDTO dto = schemaFieldValidation.get(fieldKey);
             castDtoToValidation(schemaField, dto);
             FieldValidation parentSchemaField = getTargetSchema(fieldValidation, Arrays.copyOfRange(fieldName, 0, fieldName.length - 1));
             if (parentSchemaField.getRequired() == null)
                 parentSchemaField.setRequired(new HashSet<>());
-            if (dto.getRequired()) {
+            if (dto.isRequired()) {
                 parentSchemaField.getRequired().add(fieldName[fieldName.length - 1]);
             } else {
                 parentSchemaField.getRequired().remove(fieldName[fieldName.length - 1]);
             }
         }
-        return mongoDbSchemaService.saveSchema(collectionName, fieldValidation);
     }
 
     /**
@@ -133,7 +139,6 @@ public class MongoSchemaOperationsImpl implements MongoSchemaOperations {
      * @param nestedFieldName nested field name
      * @return schema of field name
      */
-
     private FieldValidation getTargetSchema(FieldValidation schema, String[] nestedFieldName) {
         if (nestedFieldName != null)
             for (String fieldName : nestedFieldName) {

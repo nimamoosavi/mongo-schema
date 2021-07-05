@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.nicico</groupId>
 	<artifactId>mongo-schema</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.1-Released</version>
 	<name>mongo-schema</name>
 	<description>change schema of mongoDb runtime with java</description>
 	<properties>

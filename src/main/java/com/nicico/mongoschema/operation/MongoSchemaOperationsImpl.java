@@ -13,6 +13,7 @@ import lombok.Synchronized;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
 
 import java.util.*;
 
@@ -20,6 +21,7 @@ import java.util.*;
  * @author Hossein Mahdevar
  * @version 1.0.0
  */
+@Service
 public class MongoSchemaOperationsImpl implements MongoSchemaOperations {
 
 
@@ -28,7 +30,7 @@ public class MongoSchemaOperationsImpl implements MongoSchemaOperations {
     private ObjectMapper objectMapper;
     @Autowired
     ApplicationException<ServiceException> applicationException;
-
+    @Autowired
     public MongoSchemaOperationsImpl(MongoDatabase database) {
         this.mongoDbSchemaService = new MongoDbSchemaServiceImpl(database);
     }

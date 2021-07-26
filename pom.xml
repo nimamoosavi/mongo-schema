@@ -8,7 +8,7 @@
 		<version>2.3.0.RELEASE</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
-	<groupId>com.nicico</groupId>
+	<groupId>com.webold</groupId>
 	<artifactId>mongo-schema</artifactId>
 	<version>1.0.1-Released</version>
 	<name>mongo-schema</name>
@@ -19,7 +19,7 @@
 	</properties>
 	<dependencies>
 		<dependency>
-			<groupId>com.nicico.cost</groupId>
+			<groupId>com.webold</groupId>
 			<artifactId>framework</artifactId>
 			<version>1.0.1-Released</version>
 		</dependency>

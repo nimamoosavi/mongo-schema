@@ -21,11 +21,12 @@ public class MongoSchemaConfig {
     private String username;
     @Value("${spring.data.mongodb.password}")
     private String password;
+
     @Bean
-    public MongoDatabase createMongoDatabase(){
-        MongoClient mongoClient = new MongoClient(host,port);
+    public MongoDatabase createMongoDatabase() {
+        MongoClient mongoClient = new MongoClient(host, port);
         MongoCredential credential = MongoCredential.createCredential(username, database,
                 password.toCharArray());
-        return  mongoClient.getDatabase(database);
+        return mongoClient.getDatabase(database);
     }
 }

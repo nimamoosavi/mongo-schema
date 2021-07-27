@@ -25,8 +25,7 @@ public class MongoSchemaConfig {
     @Bean
     public MongoDatabase createMongoDatabase() {
         MongoClient mongoClient = new MongoClient(host, port);
-        MongoCredential credential = MongoCredential.createCredential(username, database,
-                password.toCharArray());
+        MongoCredential credential = MongoCredential.createCredential(username, database, password.toCharArray());
         return mongoClient.getDatabase(database);
     }
 }

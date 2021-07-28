@@ -1,6 +1,6 @@
-package com.nicico.mongoschema.operation;
+package com.webold.mongoschema.operation;
 
-import com.nicico.mongoschema.schema.FieldValidation;
+import com.webold.mongoschema.schema.FieldValidation;
 import org.bson.Document;
 
 import java.util.Map;

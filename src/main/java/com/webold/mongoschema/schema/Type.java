@@ -1,4 +1,4 @@
-package com.nicico.mongoschema.schema;
+package com.webold.mongoschema.schema;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

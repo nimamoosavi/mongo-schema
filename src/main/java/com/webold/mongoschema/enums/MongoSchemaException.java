@@ -1,6 +1,6 @@
-package com.nicico.mongoschema.enums;
+package com.webold.mongoschema.enums;
 
-import com.nicico.cost.framework.utility.view.Message;
+import com.webold.framework.utility.view.Message;
 
 public enum MongoSchemaException implements Message {
     NOTFOUND{

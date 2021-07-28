@@ -1,12 +1,12 @@
-package com.nicico.mongoschema.schema;
+package com.webold.mongoschema.schema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
-import com.nicico.cost.framework.service.exception.ApplicationException;
-import com.nicico.cost.framework.service.exception.ServiceException;
-import com.nicico.mongoschema.enums.MongoSchemaException;
+import com.webold.framework.service.exception.ApplicationException;
+import com.webold.framework.service.exception.ServiceException;
+import com.webold.mongoschema.enums.MongoSchemaException;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

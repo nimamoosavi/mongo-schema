@@ -1,6 +1,6 @@
-package com.nicico.mongoschema.operation;
+package com.webold.mongoschema.operation;
 
-import com.nicico.mongoschema.schema.Type;
+import com.webold.mongoschema.schema.Type;
 import lombok.*;
 
 import java.util.Set;

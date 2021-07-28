@@ -1,4 +1,4 @@
-package com.nicico.mongoschema.config;
+package com.webold.mongoschema.config;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;

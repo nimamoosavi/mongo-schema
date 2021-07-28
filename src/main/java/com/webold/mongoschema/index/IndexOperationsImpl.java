@@ -1,4 +1,4 @@
-package com.nicico.mongoschema.index;
+package com.webold.mongoschema.index;
 
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Collation;

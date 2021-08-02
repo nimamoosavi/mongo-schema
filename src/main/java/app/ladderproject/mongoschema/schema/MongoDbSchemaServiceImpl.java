@@ -1,4 +1,4 @@
-package com.webold.mongoschema.schema;
+package app.ladderproject.mongoschema.schema;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,7 +6,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.webold.framework.service.exception.ApplicationException;
 import com.webold.framework.service.exception.ServiceException;
-import com.webold.mongoschema.enums.MongoSchemaException;
+import app.ladderproject.mongoschema.enums.MongoSchemaException;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

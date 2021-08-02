@@ -1,4 +1,4 @@
-package com.webold.mongoschema.index;
+package app.ladderproject.mongoschema.index;
 
 import java.util.List;
 import java.util.Optional;

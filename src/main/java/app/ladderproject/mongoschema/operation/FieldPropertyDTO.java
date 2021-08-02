@@ -1,6 +1,6 @@
-package com.webold.mongoschema.operation;
+package app.ladderproject.mongoschema.operation;
 
-import com.webold.mongoschema.schema.Type;
+import app.ladderproject.mongoschema.schema.Type;
 import lombok.*;
 
 import java.util.Set;

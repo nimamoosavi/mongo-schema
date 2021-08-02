@@ -1,4 +1,4 @@
-package com.webold.mongoschema.config;
+package app.ladderproject.mongoschema.config;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;

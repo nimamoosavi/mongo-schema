@@ -1,4 +1,4 @@
-package com.webold.mongoschema.index;
+package app.ladderproject.mongoschema.index;
 
 import com.mongodb.client.model.Collation;
 import com.mongodb.client.model.IndexOptions;

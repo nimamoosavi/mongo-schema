@@ -1,4 +1,4 @@
-package com.webold.mongoschema.schema;
+package app.ladderproject.mongoschema.schema;
 
 import org.bson.Document;
 

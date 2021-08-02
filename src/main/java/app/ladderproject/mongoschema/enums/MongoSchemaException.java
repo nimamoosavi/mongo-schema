@@ -1,4 +1,4 @@
-package com.webold.mongoschema.enums;
+package app.ladderproject.mongoschema.enums;
 
 import com.webold.framework.utility.view.Message;
 

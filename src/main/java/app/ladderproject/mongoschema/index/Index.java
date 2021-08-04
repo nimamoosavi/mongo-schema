@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
  * @author Hossein Mahdevar
  * @version 1.0.0
  */
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Setter
 @Getter

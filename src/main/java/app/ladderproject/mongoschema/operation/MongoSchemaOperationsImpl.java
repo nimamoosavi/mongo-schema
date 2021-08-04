@@ -1,10 +1,10 @@
 package app.ladderproject.mongoschema.operation;
 
+import app.ladderproject.core.service.exception.ApplicationException;
+import app.ladderproject.core.service.exception.ServiceException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.client.MongoDatabase;
-import com.webold.framework.service.exception.ApplicationException;
-import com.webold.framework.service.exception.ServiceException;
 import app.ladderproject.mongoschema.enums.MongoSchemaException;
 import app.ladderproject.mongoschema.schema.FieldValidation;
 import app.ladderproject.mongoschema.schema.MongoDbSchemaService;

@@ -1,6 +1,7 @@
 package app.ladderproject.mongoschema.enums;
 
-import com.webold.framework.utility.view.Message;
+
+import app.ladderproject.core.utility.view.Message;
 
 public enum MongoSchemaException implements Message {
     NOTFOUND{

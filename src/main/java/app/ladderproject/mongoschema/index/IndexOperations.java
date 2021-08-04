@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Indexes Operations
- * operations need on indexes of mongoDB
+ * Indexes Operations need on indexes of mongoDB
  * @author Hossein Mahdevar
  * @version 1.0.0
  */
